@@ -17,6 +17,57 @@ export const GET_USER = gql`
   }
 `;
 
+export const GET_MY_BLOG = gql`
+  query user {
+    user {
+      id
+      profile {
+        fullName
+      }
+      blogs {
+        totalCount
+        list {
+          id
+          title
+          content
+          createdDate
+          updatedDate
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ALL_BLOGS = gql`
+query fetchAllBlogs {
+  fetchAllBlogs {
+    totalCount   
+    list {
+      id
+      title
+      content
+      createdDate
+      updatedDate
+      profile {
+          fullName
+      }
+    }
+  }
+}`;
+
+export const GET_ONE_BLOG = gql`
+  query fetchOneBlog($id: String!) {
+    fetchOneBlog(id: $id) {
+      id
+      title
+      content
+      createdDate
+      updatedDate
+      profile {
+          fullName
+      }
+    }
+  }`
 
 export const REGISTER_USER = gql`
   mutation signup ($userRegistrationInput: UserRegistrationInput!) {
@@ -38,20 +89,12 @@ export const SAVE_BLOG = gql`
   mutation saveBlog ($saveBlogInput: SaveBlogInput!) {
     saveBlog(saveBlogInput: $saveBlogInput) {
       id
-      heading
       title
       content
-      image
-      blogType
       createdDate
       updatedDate
-      publishedDate
-      category {
-          name
-      }
       profile {
-          firstName
-          lastName
+        fullName
       }
     }
   }

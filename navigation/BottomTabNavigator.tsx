@@ -7,7 +7,7 @@ import Colors from '../shared/constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, TabTwoParamList, HomeTabParamList } from '../types';
+import { BottomTabParamList, TabTwoParamList, HomeTabParamList, MyBlogTabParamList } from '../types';
 import BlogScreen from '../features/blog/screens/blog.screen';
 import CreateBlogScreen from '../features/blog/screens/create-blog.screen';
 import { Button } from 'react-native';
@@ -15,6 +15,10 @@ import { useAuthDispatch } from '../features/auth/auth.context';
 import { logOut } from '../features/auth/auth.action';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TOKEN_TAG } from '../shared/constants';
+import { View } from 'react-native';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import ABlogScreen from '../features/blog/screens/a-blog-screen';
+import MyBlogScreen from '../features/blog/screens/my-blog.screen';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -33,10 +37,10 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
+        name="My Blog"
+        component={MyBlogNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="bookmarks" color={color} />,
         }}
       />
       
@@ -63,41 +67,57 @@ function HomeTabNavigator() {
         name="Blog"
         component={BlogScreen}
         options={{
-          headerTitle: 'Blurg',
+          headerTitle: 'Home',
           headerRight: () => (
-          <Button
-            onPress={async () => {
-              await AsyncStorage.removeItem(TOKEN_TAG);
-              dispatch(logOut())
-            }}
-            title="Logout"
-            color="#000"
+            <View style={{ paddingRight: wp(4)}}>
+              <Button
+                onPress={async () => {
+                  await AsyncStorage.removeItem(TOKEN_TAG);
+                  dispatch(logOut())
+                }}
+                title="Logout"
+                color="#000"
 
-          />
+              />
+            </View>
+
         ),
         animationTypeForReplace: 'pop',
+        headerTintColor: '#000',
         }}
       />
       <HomeStack.Screen
         name="CreateBlog"
         component={CreateBlogScreen}
-        options={{ headerTitle: 'Create Blog' }}
+        options={{
+          headerTitle: 'Create Blog',
+          headerTintColor: '#000',
+        }}
+      />
+
+      <HomeStack.Screen
+        name="ABlogScreen"
+        component={ABlogScreen}
+        options={{
+          headerTitle: 'Blog Details',
+          headerTintColor: '#000',
+        }}
       />
 
     </HomeStack.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const MyBlogStack = createStackNavigator<MyBlogTabParamList>();
 
-function TabTwoNavigator() {
+function MyBlogNavigator() {
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <MyBlogStack.Navigator>
+      <MyBlogStack.Screen
+        name="MyBlogScreen"
+        component={MyBlogScreen}
+        options={{ headerTitle: 'My Blogs' }}
       />
-    </TabTwoStack.Navigator>
+    </MyBlogStack.Navigator>
   );
 }

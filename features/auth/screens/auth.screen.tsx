@@ -30,6 +30,7 @@ export default function AuthScreen({ }) {
   const [isSignIn, setIsSignIn] = useState<boolean>(false);
   const [formValues, setFormValues] = useState(defaultFormData);
   const [formErrors, setErrors] = useState<Partial<AuthFormValues>>({});
+  const [buttonDisabled, setButtonDisabled] = useState(false);
   const state = useAuthState();
   const dispatch = useAuthDispatch();
 
@@ -69,6 +70,7 @@ export default function AuthScreen({ }) {
         setErrors(errorClone);
       } else {
         try {
+          setButtonDisabled(true);
           const {
             data
           } = await login({
@@ -84,6 +86,7 @@ export default function AuthScreen({ }) {
           toaster('error', error?.message ?? 'An error occurred!');
           dispatch(setAuthStatus(false))
           dispatch(setLoading(false))
+          setButtonDisabled(false);
         }
       }
     } else {
@@ -92,6 +95,7 @@ export default function AuthScreen({ }) {
       } else {
         const { email, password, firstName, lastName } = formValues;
         try {
+          setButtonDisabled(true);
           const {
             data
           } = await signup({
@@ -106,7 +110,9 @@ export default function AuthScreen({ }) {
         } catch (error) {
           toaster('error', error?.message ?? 'An error occurred!');
           dispatch(setAuthStatus(false))
-          dispatch(setLoading(false))        }
+          dispatch(setLoading(false))   
+          setButtonDisabled(false);
+        }
       }
     }
   }
@@ -190,8 +196,9 @@ export default function AuthScreen({ }) {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
+          disabled={buttonDisabled}
           onPress={handleRegister}
-          style={styles.button}>
+          style={[styles.button, buttonDisabled ? { backgroundColor: 'gray' }: null]}>
             <Text style={styles.buttonText}>{ isSignIn ? 'Login' : "Register" }</Text>
           </TouchableOpacity>
         {!isSignIn && <View>

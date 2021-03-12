@@ -10,12 +10,10 @@ const LandingScreen: React.FC<{navigation: any}> = ({navigation}) => {
 
   useEffect(() => {
     const bootstrapAsync = async () => {
-      console.log('stater-->>', state);
       if (!state.loading && state.isAuthenticated) {
         navigation.navigate('Root');
       }
       if (!state.loading && !state.isAuthenticated) {
-        console.log('stater- git here->>');
         navigation.navigate('Auth');
       }
     }

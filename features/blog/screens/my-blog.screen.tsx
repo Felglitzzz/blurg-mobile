@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, StyleProp, StyleSheet, TouchableWithoutFeedback, useColorScheme, ViewStyle } from 'react-native';
+import { ActivityIndicator, Platform, StyleProp, StyleSheet, TextInput, TouchableWithoutFeedback, useColorScheme, ViewStyle } from 'react-native';
 import { View, Text } from '../../../components/Themed';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -10,7 +10,7 @@ import moment from 'moment';
 
 import { useAuthState } from '../../auth/auth.context';
 import { useQuery } from '@apollo/client';
-import { GET_ALL_BLOGS } from '../../../shared/constants/graphql.constant';
+import { GET_MY_BLOG } from '../../../shared/constants/graphql.constant';
 
 const avgWordsPerMin = 250;
 
@@ -25,13 +25,13 @@ export const CustomContainer: React.FC<Props> = ({ children, style }) => {
   );
 };
 
-export default function BlogScreen({ route }) {
+export default function MyBlogScreen() {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const [blogs, setBlogs] = React.useState({ totalCount: 0, list: []})
   const state = useAuthState();
 
-  const {data, loading, networkStatus, refetch} = useQuery(GET_ALL_BLOGS, {
+  const {data, loading, networkStatus} = useQuery(GET_MY_BLOG, {
     fetchPolicy: 'network-only',
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
@@ -40,12 +40,6 @@ export default function BlogScreen({ route }) {
   const navigateToCreateBlogScreen = () => {
     navigation.navigate('CreateBlog');
   }
-
-  React.useEffect(() => {
-    if (!!route?.params?.reload) {
-      refetch();
-    }
-  }, [route?.params?.reload]);
 
   React.useEffect(() => {
     if (!state.loading) {
@@ -80,8 +74,6 @@ export default function BlogScreen({ route }) {
           <Text style={styles.headerText}>{item?.title}</Text>
         </View>
         <View style={styles.authorContainer}>
-          <Text style={styles.headerTime}>{item?.profile?.fullName}</Text>
-          <Text style={styles.headerTime}>-</Text>
           <Text style={styles.headerTime}>{getEstimatedReadTime(item?.content?.length)} min read</Text>
           <Text style={styles.headerTime}>-</Text>
         <Text style={styles.headerTime}>updated {moment(item?.updatedDate).fromNow()}</Text>
@@ -91,13 +83,13 @@ export default function BlogScreen({ route }) {
   }
 
   const getEstimatedReadTime = (contentCount: number) => {
-    return Math.ceil(contentCount / avgWordsPerMin);
+     return Math.ceil(contentCount / avgWordsPerMin);
   }
 
   const renderBlogs = () => {
     return (
       <FlatList
-        data = {data.fetchAllBlogs?.list}
+        data = {data.user?.blogs?.list}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
@@ -107,7 +99,7 @@ export default function BlogScreen({ route }) {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Featured Blogs</Text>
+        <Text style={styles.title}>My List</Text>
         <TouchableOpacity
           onPress={navigateToCreateBlogScreen}
           style={styles.buttonHeader}><Text style={styles.buttonHeaderText}>Write a Story</Text></TouchableOpacity>

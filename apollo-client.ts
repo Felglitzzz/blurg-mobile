@@ -30,6 +30,7 @@ const authLink = setContext(async (_, {headers}) => {
 const errorLink = onError(({operation, graphQLErrors, networkError}) => {
   if (graphQLErrors) {
     graphQLErrors.map(({extensions}: any) => {
+      console.log('GRAPHQL ERROR--->>', extensions?.exception);
       if (
         extensions?.exception?.status === 401 && (operation.operationName === 'user' || operation.operationName === 'login' || operation.operationName === 'signup') 
       ) {

@@ -35,7 +35,6 @@ export default function useCachedResources() {
   });
 
   React.useEffect(() => {
-    console.log('trigger happy')
     const checkTokenExp = async () => {
       const token = await AsyncStorage.getItem(TOKEN_TAG);
       if (!token) {

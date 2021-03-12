@@ -7,33 +7,68 @@ import QuillEditor, { QuillToolbar, SelectionChangeData, TextChangeData } from '
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 import { useMutation } from '@apollo/client';
 import { SAVE_BLOG } from '../../../shared/constants/graphql.constant';
+import { toaster } from '../../../shared/components/service/toaster.service';
 
-export default function CreateBlogScreen() {
+const HEADER_TAG = '<h1></h1>';
+const PARAGRAPH_BREAK_TAG = '<p><br></p>'
+const BREAK_TAG = '<br>';
+
+export default function CreateBlogScreen({ navigation }) {
   const colorScheme = useColorScheme();
   const _editor = React.createRef<QuillEditor>();
+  const [lastIndex, setLastIndex] = React.useState(0);
   const [saveBlog] = useMutation(SAVE_BLOG);
+  const [buttonDisabled, setButtonDisabled] = React.useState(false)
 
-  const handleGetHtml = async () => {
+  const save = async () => {
     const content = await _editor.current?.getHtml();
-    
-    console.log('content--->>', content);
+    let sanitizedHtml = content.replaceAll(PARAGRAPH_BREAK_TAG, '');
+    sanitizedHtml = sanitizedHtml.replaceAll(BREAK_TAG, '');
 
-    console.log(getHeader(content))
+    try {
+      const { data } = await saveBlog({
+        variables: { saveBlogInput: {
+          content: sanitizedHtml,
+          title: getHeader(content)
+        }}
+      })
+  
+      if (data) {
+        navigation.replace('Blog')
+      }
+    } catch(err) {
+      toaster('error', err.message)
+    }
+  };
 
+  const onHtmlChange = (htmlString: string) => {
+   const sanitizedHtml = htmlString?.replaceAll(BREAK_TAG, '');
+    if (sanitizedHtml === HEADER_TAG) {
+      setButtonDisabled(true);
+    } else {
+      setButtonDisabled(false)
+    }
+    setLastIndex(htmlString.length);
+  }
 
-    // const { data, loading } = await saveBlog({
-    //   variables: { saveBlogInput: {
-    //     content
-    //   }}
-    // })
+  const customHandler = (name: string, value: any) => {
+    if (name === 'image') {
+      _editor.current?.insertEmbed(
+        lastIndex,
+        'image',
+        'https://picsum.photos/400/100'
+      );
+    } else {
+      console.log(`${name} clicked with value: ${value}`);
+    }
   };
 
   const getHeader = (html: string) => {
-    console.log('html--->>', html);
     const OPENING_H1_TAG = '<h1>';
     const CLOSING_H1_TAG = '</h1>';
     const OPENING_H2_TAG = '<h2>';
     const CLOSING_H2_TAG = '</h2>';
+    html.replaceAll(BREAK_TAG, '');
     if (html.indexOf(OPENING_H1_TAG) !== -1) {
       return html.substring(html.indexOf(OPENING_H1_TAG) + OPENING_H1_TAG.length, html.indexOf(CLOSING_H1_TAG));
     } if (html.indexOf(OPENING_H2_TAG) !== -1){
@@ -47,6 +82,7 @@ export default function CreateBlogScreen() {
     const { range } = data;
     if (range) {
       if (range.length === 0) {
+        setLastIndex(range.index )
         console.log('User cursor is on', range.index);
       } else {
         const text = await _editor.current?.getText(
@@ -62,10 +98,6 @@ export default function CreateBlogScreen() {
 
   return (
     <KeyboardAwareScrollView style={styles.container}>
-      <View>
-        <Text style={styles.title}>Create a blog</Text>
-      </View>
-
       <View style={styles.toolbarContainer}>
         <QuillToolbar
         styles={{
@@ -80,6 +112,10 @@ export default function CreateBlogScreen() {
             ['image',],
           ]}
           theme={{ background: 'white', color: '#000', overlay: 'rgba(0,0,0,.1)', size: 30, }}
+          custom={{
+            handler: customHandler,
+            actions: ['image'],
+          }}
           />
       </View>
       
@@ -89,12 +125,7 @@ export default function CreateBlogScreen() {
             ref={_editor}
             container={false}
             onSelectionChange={handleSelectionChange}
-            // onTextChange={handleTextChange}
-            onHtmlChange={({ html }) => {
-              
-              console.log('see', getHeader(html))
-            }}
-
+            onHtmlChange={({ html }) => onHtmlChange(html)}
             initialHtml="<h1>Blog Header</h1>"
           />
       </View>
@@ -102,13 +133,10 @@ export default function CreateBlogScreen() {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={handleGetHtml}
-          style={styles.button}>
-            <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}>
-            <Text style={styles.buttonText}>Publish</Text>
+          disabled={buttonDisabled}
+          onPress={save}
+          style={[styles.button, buttonDisabled ? { backgroundColor: 'gray'} : undefined]}>
+            <Text style={styles.buttonText}>Create</Text>
         </TouchableOpacity>
       </View>
 
