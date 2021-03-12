@@ -12,7 +12,7 @@ import { useAuthState } from '../../auth/auth.context';
 import { useQuery } from '@apollo/client';
 import { GET_MY_BLOG } from '../../../shared/constants/graphql.constant';
 
-const avgWordsPerMin = 250;
+const avgWordsPerMin = 300;
 
 type Props = {
   style?: StyleProp<ViewStyle>;

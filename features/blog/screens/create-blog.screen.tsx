@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Platform, StyleProp, StyleSheet, TextInput, useColorScheme, ViewStyle } from 'react-native';
+import { Platform, StyleSheet, useColorScheme } from 'react-native';
 import { View, Text } from '../../../components/Themed';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import QuillEditor, { QuillToolbar, SelectionChangeData, TextChangeData } from 'react-native-cn-quill';
+import QuillEditor, { QuillToolbar, SelectionChangeData } from 'react-native-cn-quill';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 import { useMutation } from '@apollo/client';
 import { SAVE_BLOG } from '../../../shared/constants/graphql.constant';
@@ -12,6 +12,10 @@ import { toaster } from '../../../shared/service/toaster.service';
 const HEADER_TAG = '<h1></h1>';
 const PARAGRAPH_BREAK_TAG = '<p><br></p>'
 const BREAK_TAG = '<br>';
+
+const HEADER_TAG_REGEX = /<h1><\/h1>/g;
+const PARAGRAPH_BREAK_TAG_REGEX = /<p><br><\/p>/g
+const BREAK_TAG_REGEX = /<br>/g;
 
 export default function CreateBlogScreen({ navigation }) {
   const colorScheme = useColorScheme();
@@ -22,8 +26,8 @@ export default function CreateBlogScreen({ navigation }) {
 
   const save = async () => {
     const content = await _editor.current?.getHtml();
-    let sanitizedHtml = content.replaceAll(PARAGRAPH_BREAK_TAG, '');
-    sanitizedHtml = sanitizedHtml.replaceAll(BREAK_TAG, '');
+    let sanitizedHtml = content?.toString()?.replace(PARAGRAPH_BREAK_TAG_REGEX, '');
+    sanitizedHtml = sanitizedHtml?.toString()?.replace(BREAK_TAG_REGEX, '');
 
     try {
       const { data } = await saveBlog({
@@ -41,14 +45,14 @@ export default function CreateBlogScreen({ navigation }) {
     }
   };
 
-  const onHtmlChange = (htmlString: string) => {
-   const sanitizedHtml = htmlString?.replaceAll(BREAK_TAG, '');
+  const onHtmlChange = (data: Record<'html', string>) => {
+   const sanitizedHtml = data?.html?.replace(BREAK_TAG_REGEX, '');
     if (sanitizedHtml === HEADER_TAG) {
       setButtonDisabled(true);
     } else {
       setButtonDisabled(false)
     }
-    setLastIndex(htmlString.length);
+    setLastIndex(data?.html?.length);
   }
 
   const customHandler = (name: string, value: any) => {
@@ -68,7 +72,7 @@ export default function CreateBlogScreen({ navigation }) {
     const CLOSING_H1_TAG = '</h1>';
     const OPENING_H2_TAG = '<h2>';
     const CLOSING_H2_TAG = '</h2>';
-    html.replaceAll(BREAK_TAG, '');
+    html.replace(BREAK_TAG_REGEX, '');
     if (html.indexOf(OPENING_H1_TAG) !== -1) {
       return html.substring(html.indexOf(OPENING_H1_TAG) + OPENING_H1_TAG.length, html.indexOf(CLOSING_H1_TAG));
     } if (html.indexOf(OPENING_H2_TAG) !== -1){
