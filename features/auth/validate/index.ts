@@ -29,7 +29,6 @@ export const validateSignupForm = (formData: any, errors: Partial<AuthFormValues
   }
 
   if (!formData?.cpassword?.trim()) {
-    console.log('i got here')
     errors.cpassword = 'Please confirm password';
   }
 

@@ -13,6 +13,7 @@ export const actionType: IActionType = {
   LOG_OUT: 'LOG_OUT',
   SET_USER: 'SET_USER',
   LOADING: 'LOADING',
+  SET_AUTH_STATUS: 'SET_AUTH_STATUS',
 };
 
 const AuthStateContext = createContext<IState | undefined>(initialState);
@@ -25,6 +26,8 @@ const reducer: IReducer = (state: IState, action: IAction) => {
       return {...state, isAuthenticated: false, user: null, loading: false };
     case actionType.SET_USER:
       return {...state, user: action.data, isAuthenticated: !!action?.data?.id};
+    case actionType.SET_AUTH_STATUS:
+      return {...state, isAuthenticated: action.data};
     case actionType.LOADING:
       return {...state, loading: action.data};
     default:

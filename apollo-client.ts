@@ -1,7 +1,6 @@
 
 import {
   ApolloClient,
-  ApolloLink,
   InMemoryCache,
   createHttpLink,
   from,
@@ -12,7 +11,6 @@ import {setContext} from '@apollo/client/link/context';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {onError} from '@apollo/client/link/error';
-import { toaster } from './shared/components/service/toaster.service';
 import { TOKEN_TAG } from './shared/constants';
 
 const httpLink = createHttpLink({
@@ -32,13 +30,10 @@ const authLink = setContext(async (_, {headers}) => {
 const errorLink = onError(({operation, graphQLErrors, networkError}) => {
   if (graphQLErrors) {
     graphQLErrors.map(({extensions}: any) => {
-      console.log('wrror message--->>', extensions?.exception?.message, operation.operationName)
       if (
-        extensions?.exception?.status === 401 && operation.query 
+        extensions?.exception?.status === 401 && (operation.operationName === 'user' || operation.operationName === 'login' || operation.operationName === 'signup') 
       ) {
-        console.log('unaauthorized')
         AsyncStorage.removeItem(TOKEN_TAG);
-        toaster('error', extensions?.exception?.message);
       }
 
       if (

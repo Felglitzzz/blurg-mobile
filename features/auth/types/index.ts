@@ -10,6 +10,7 @@ export interface IActionType {
   LOG_OUT: string;
   SET_USER: string;
   LOADING: string;
+  SET_AUTH_STATUS: string;
 }
 
 export interface IProfile {

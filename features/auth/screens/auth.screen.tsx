@@ -2,16 +2,20 @@ import * as React from 'react';
 import { Platform, StyleSheet, TextInput, useColorScheme } from 'react-native';
 import { View, Text } from '../../../components/Themed';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useState } from 'react';
 import { AuthFormValues } from '../types';
 import { validateSigninForm, validateSignupForm } from '../validate';
 import { useMutation } from '@apollo/client';
 import { LOGIN_USER, REGISTER_USER } from '../../../shared/constants/graphql.constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { toaster } from '../../../shared/components/service/toaster.service';
 import { TOKEN_TAG } from '../../../shared/constants';
+import { useAuthDispatch, useAuthState } from '../auth.context';
+import * as SplashScreen from 'expo-splash-screen';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
+import { setAuthStatus, setLoading } from '../auth.action';
 
 const defaultFormData: AuthFormValues = {
   email: '',
@@ -26,11 +30,17 @@ export default function AuthScreen({ }) {
   const [isSignIn, setIsSignIn] = useState<boolean>(false);
   const [formValues, setFormValues] = useState(defaultFormData);
   const [formErrors, setErrors] = useState<Partial<AuthFormValues>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const navigation = useNavigation();
+  const state = useAuthState();
+  const dispatch = useAuthDispatch();
 
   const [login] = useMutation(LOGIN_USER);
   const [signup] = useMutation(REGISTER_USER);
+
+  React.useEffect(() => {
+    if (!state.loading) {
+      SplashScreen.hideAsync()
+    }
+  }, [])
 
   function handleAlreadyHaveAnAccount() {
     clearErrors();
@@ -38,7 +48,7 @@ export default function AuthScreen({ }) {
   }
 
   const onInputChange = (name: keyof AuthFormValues, value: string) => {
-    clearErrors()
+    clearErrors();
     setFormValues((prevState) => ({...prevState, [name]: value}));
   };
 
@@ -51,14 +61,12 @@ export default function AuthScreen({ }) {
   };
 
   const handleRegister = async () => {
-    setIsLoading(true);
     clearErrors();
     const errorClone = {...formErrors}
     if (isSignIn) {
       const { email, password } = formValues;
       if (!validateSigninForm({ email, password }, errorClone)) {
         setErrors(errorClone);
-        setIsLoading(false);
       } else {
         try {
           const {
@@ -68,28 +76,43 @@ export default function AuthScreen({ }) {
           });
           if (data?.login?.accessToken) {
             await AsyncStorage.setItem(TOKEN_TAG, data.login.accessToken);
-            setIsLoading(false);
-            navigation.navigate('Root');
+            dispatch(setAuthStatus(true))
+            dispatch(setLoading(false))
             toaster('success', 'Login Successful!');
           }
         } catch (error) {
-          setIsLoading(false);
+          toaster('error', error?.message ?? 'An error occurred!');
+          dispatch(setAuthStatus(false))
+          dispatch(setLoading(false))
         }
       }
     } else {
-      console.log('issign in else', isSignIn)
-
       if (!validateSignupForm(formValues , errorClone)) {
         setErrors(errorClone);
-        setIsLoading(false);
       } else {
-        // make the signup graphql call
+        const { email, password, firstName, lastName } = formValues;
+        try {
+          const {
+            data
+          } = await signup({
+            variables: { userRegistrationInput: { firstName, lastName, email, password } },
+          });
+          if (data?.signup?.accessToken) {
+            await AsyncStorage.setItem(TOKEN_TAG, data.signup.accessToken);
+            dispatch(setAuthStatus(true))
+            dispatch(setLoading(false))
+            toaster('success', 'Signup Successful!');
+          }
+        } catch (error) {
+          toaster('error', error?.message ?? 'An error occurred!');
+          dispatch(setAuthStatus(false))
+          dispatch(setLoading(false))        }
       }
     }
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAwareScrollView style={styles.container}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>{isSignIn ? 'Welcome Back': 'Join Blurg'}</Text>
       </View>
@@ -186,13 +209,14 @@ export default function AuthScreen({ }) {
           </TouchableOpacity>
         </View>}
       </View>
-    </View>
+    </KeyboardAwareScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    margin: hp(2),
+    backgroundColor: '#fff',
+    padding: hp(2),
     flex: 1,
   },
   titleContainer: {

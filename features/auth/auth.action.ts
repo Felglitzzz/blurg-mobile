@@ -4,6 +4,14 @@ export const actionType: IActionType = {
   LOG_OUT: 'LOG_OUT',
   SET_USER: 'SET_USER',
   LOADING: 'LOADING',
+  SET_AUTH_STATUS: 'SET_AUTH_STATUS',
+};
+
+export const setAuthStatus = (status: boolean) => {
+  return {
+    type: actionType.SET_AUTH_STATUS,
+    data: status,
+  };
 };
 
 export const setUserData = (user: IUser | null) => {

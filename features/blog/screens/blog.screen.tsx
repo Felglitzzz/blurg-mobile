@@ -3,11 +3,9 @@ import { Platform, StyleProp, StyleSheet, TextInput, useColorScheme, ViewStyle }
 import { View, Text } from '../../../components/Themed';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import QuillEditor, { QuillToolbar } from 'react-native-cn-quill';
 import { useNavigation } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthState } from '../../auth/auth.context';
-const clockIcon = require('../../../assets/images/clock.png');
 
 type Props = {
   style?: StyleProp<ViewStyle>;
@@ -20,15 +18,10 @@ export const CustomContainer: React.FC<Props> = ({ children, style }) => {
   );
 };
 
-
-
 export default function BlogScreen() {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const state = useAuthState();
-
-
-  const _editor = React.createRef<QuillEditor>();
 
   const navigateToCreateBlogScreen = () => {
     navigation.navigate('CreateBlog');

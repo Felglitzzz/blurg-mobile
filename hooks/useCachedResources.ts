@@ -28,8 +28,6 @@ export default function useCachedResources() {
   const state = useAuthState();
   const dispatch = useAuthDispatch();
 
-  console.log('state in cache', state)
-
   const [getUser, {data, loading}] = useLazyQuery(GET_USER, {
     fetchPolicy: 'network-only',
     errorPolicy: 'all',
@@ -37,8 +35,13 @@ export default function useCachedResources() {
   });
 
   React.useEffect(() => {
+    console.log('trigger happy')
     const checkTokenExp = async () => {
       const token = await AsyncStorage.getItem(TOKEN_TAG);
+      if (!token) {
+        dispatch(setLoading(false))
+        dispatch(setUserData(null))
+      }
       const expired = isTokenExpired(token);
       if (expired) {
         await AsyncStorage.removeItem(TOKEN_TAG);
@@ -63,9 +66,7 @@ export default function useCachedResources() {
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
-      try {    
-        console.log('data----------->>', data)
-
+      try {
         if (!loading && data) {
           dispatch(setUserData(data.user));
           dispatch(setLoading(false));
@@ -81,9 +82,7 @@ export default function useCachedResources() {
         // We might want to provide this error information to an error reporting service
         console.warn(e);
       } finally {
-        console.log('hitting finally')
         setLoadingComplete(true);
-        // await SplashScreen.hideAsync();
       }
     }
 

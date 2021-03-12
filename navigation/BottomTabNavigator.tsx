@@ -62,7 +62,9 @@ function HomeTabNavigator() {
       <HomeStack.Screen
         name="Blog"
         component={BlogScreen}
-        options={{ headerTitle: 'Blurg', headerRight: () => (
+        options={{
+          headerTitle: 'Blurg',
+          headerRight: () => (
           <Button
             onPress={async () => {
               await AsyncStorage.removeItem(TOKEN_TAG);
@@ -73,7 +75,8 @@ function HomeTabNavigator() {
 
           />
         ),
-}}
+        animationTypeForReplace: 'pop',
+        }}
       />
       <HomeStack.Screen
         name="CreateBlog"
