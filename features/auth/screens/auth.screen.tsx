@@ -10,7 +10,7 @@ import { useMutation } from '@apollo/client';
 import { LOGIN_USER, REGISTER_USER } from '../../../shared/constants/graphql.constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { toaster } from '../../../shared/components/service/toaster.service';
+import { toaster } from '../../../shared/service/toaster.service';
 import { TOKEN_TAG } from '../../../shared/constants';
 import { useAuthDispatch, useAuthState } from '../auth.context';
 import * as SplashScreen from 'expo-splash-screen';
@@ -127,6 +127,7 @@ export default function AuthScreen({ }) {
           autoCapitalize="none"
           style={[styles.textInput, formErrors?.firstName ? { borderBottomColor: 'red' } : undefined ]}
           placeholder='First name'
+          placeholderTextColor="gray"
           onChangeText={(value) => {
             onInputChange('firstName', value)
           }}
@@ -141,6 +142,7 @@ export default function AuthScreen({ }) {
           autoCapitalize="none"
           style={[styles.textInput, formErrors?.lastName ? { borderBottomColor: 'red' } : undefined ]}
           placeholder='Last name'
+          placeholderTextColor="gray"
           onChangeText={(value) => {
             onInputChange('lastName', value)
           }}
@@ -155,6 +157,7 @@ export default function AuthScreen({ }) {
           autoCapitalize="none"
           style={[styles.textInput, formErrors?.email ? { borderBottomColor: 'red' } : undefined ]}
           placeholder='Email'
+          placeholderTextColor="gray"
           onChangeText={(value) => {
             onInputChange('email', value)
           }}
@@ -169,6 +172,7 @@ export default function AuthScreen({ }) {
           autoCapitalize="none"
           style={[styles.textInput, formErrors?.password ? { borderBottomColor: 'red' } : undefined ]}
           placeholder='Password'
+          placeholderTextColor="gray"
           onChangeText={(value) => {
             onInputChange('password', value)
           }}
@@ -184,6 +188,7 @@ export default function AuthScreen({ }) {
           autoCapitalize="none"
           style={[styles.textInput, formErrors?.cpassword ? { borderBottomColor: 'red' } : undefined ]}
           placeholder='Confirm Password'
+          placeholderTextColor="gray"
           onChangeText={(value) => {
             onInputChange('cpassword', value)
           }}

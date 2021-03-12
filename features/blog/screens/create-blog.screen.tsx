@@ -7,7 +7,7 @@ import QuillEditor, { QuillToolbar, SelectionChangeData, TextChangeData } from '
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 import { useMutation } from '@apollo/client';
 import { SAVE_BLOG } from '../../../shared/constants/graphql.constant';
-import { toaster } from '../../../shared/components/service/toaster.service';
+import { toaster } from '../../../shared/service/toaster.service';
 
 const HEADER_TAG = '<h1></h1>';
 const PARAGRAPH_BREAK_TAG = '<p><br></p>'

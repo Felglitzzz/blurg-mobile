@@ -5,9 +5,7 @@ import * as React from 'react';
 
 import Colors from '../shared/constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, TabTwoParamList, HomeTabParamList, MyBlogTabParamList } from '../types';
+import { BottomTabParamList, HomeTabParamList, MyBlogTabParamList } from '../types';
 import BlogScreen from '../features/blog/screens/blog.screen';
 import CreateBlogScreen from '../features/blog/screens/create-blog.screen';
 import { Button } from 'react-native';
@@ -15,7 +13,7 @@ import { useAuthDispatch } from '../features/auth/auth.context';
 import { logOut } from '../features/auth/auth.action';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TOKEN_TAG } from '../shared/constants';
-import { View } from 'react-native';
+import { View } from '../components/Themed';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import ABlogScreen from '../features/blog/screens/a-blog-screen';
 import MyBlogScreen from '../features/blog/screens/my-blog.screen';
@@ -80,10 +78,9 @@ function HomeTabNavigator() {
 
               />
             </View>
-
-        ),
-        animationTypeForReplace: 'pop',
-        headerTintColor: '#000',
+          ),
+          animationTypeForReplace: 'pop',
+          headerTintColor: '#000',
         }}
       />
       <HomeStack.Screen
@@ -111,12 +108,31 @@ function HomeTabNavigator() {
 const MyBlogStack = createStackNavigator<MyBlogTabParamList>();
 
 function MyBlogNavigator() {
+  const dispatch = useAuthDispatch();
+
   return (
     <MyBlogStack.Navigator>
       <MyBlogStack.Screen
         name="MyBlogScreen"
         component={MyBlogScreen}
-        options={{ headerTitle: 'My Blogs' }}
+        options={{
+          headerTitle: 'My Blogs',
+          headerRight: () => (
+            <View style={{ paddingRight: wp(4)}}>
+              <Button
+                onPress={async () => {
+                  await AsyncStorage.removeItem(TOKEN_TAG);
+                  dispatch(logOut())
+                }}
+                title="Logout"
+                color="#000"
+
+              />
+            </View>
+          ),
+          animationTypeForReplace: 'pop',
+          headerTintColor: '#000'
+        }}
       />
     </MyBlogStack.Navigator>
   );
