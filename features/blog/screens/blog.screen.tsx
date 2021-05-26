@@ -42,12 +42,6 @@ export default function BlogScreen({ route }) {
   }
 
   React.useEffect(() => {
-    if (!!route?.params?.reload) {
-      refetch();
-    }
-  }, [route?.params?.reload]);
-
-  React.useEffect(() => {
     if (!state.loading) {
       SplashScreen.hideAsync()
     }
